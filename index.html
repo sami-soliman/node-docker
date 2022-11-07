@@ -29,7 +29,7 @@
     #container{
         display: block;
     }
-    #container—edit {
+    #container—edit{
         display: none;
     }
     #container-edit input {
@@ -45,28 +45,52 @@
 </style>
 <script>
 
-function editProfile() {
-document.getElementById('container').style.display = 'none'
-document.getElementById('container—edit').style.display = 'block'
+(async function init() {
+        const response = await fetch('http://localhost:3000/get-profile');
+        console.log("response", response);
+        const user = await response.json();
+        console.log(JSON.stringify(user));
 
-const name = document.getElementById('name').textContent
-document.getElementById('input-name').value = name
+        document.getElementById('name').textContent = user.name ? user.name : 'Sami Soliman';
+        document.getElementById('email').textContent = user.email ? user.email : 'sami@example.com';
+        document.getElementById('interests').textContent = user.interests ? user.interests : 'sleeping';
 
-const email = document.getElementById('email').textContent
-document.getElementById('input-email').value = email
+        document.getElementById('container').style.display = 'block'
+    })();
 
-const interests = document.getElementById('interests').textContent
-document.getElementById('input-interests').value = interests
-}
+    async function handleUpdateProfileRequest() {
+        const payload = {
+            name: document.getElementById('input-name').value,
+            email: document.getElementById('input-email').value,
+            interests: document.getElementById('input-interests').value
+        };
 
-function saveProfile() {
+        const response = await fetch('http://localhost:3000/update-profile', {
+            method: "POST",
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        const jsonResponse = await response.json();
+
+        document.getElementById('name').textContent = jsonResponse.name;
+        document.getElementById('email').textContent = jsonResponse.email;
+        document.getElementById('interests').textContent = jsonResponse.interests;
+
+        document.getElementById('container').style.display = 'block'
+        document.getElementById('container—edit').style.display = 'none'
+    }
+
+function updateProfile() {
 
 document.getElementById('name').textContent = document.getElementById('input-name').value;
 document.getElementById('email').textContent = document.getElementById('input-email').value;
 document.getElementById('interests').textContent = document.getElementById('input-interests').value;
 
-document.getElementById('container').style.display = 'block'
-document.getElementById('container—edit').style.display = 'none'
+document.getElementById('container').style.display = 'none'
+document.getElementById('container—edit').style.display = 'block'
 }
 </script>
 
@@ -75,24 +99,27 @@ document.getElementById('container—edit').style.display = 'none'
 <div class='container' id='container'>
     <h1>User profile</h1>
     <img src='profile-picture' alt="user-profile">
-    <span>Name: </span><h3 id='name'>Sami soliman</h3>
+    <span>Name: </span><h3 id='name'>sami soliman</h3>
     <hr />
     <span>Email: </span><h3 id='email'>sam@example.com</h3>
     <hr />
-    <span>Interests: </span><h3 id='interests'>coding</h3>
+    <span>Interests: </span><h3 id='interests'>sleeping</h3>
     <hr />
-    <button class='button' onclick="editProfile()">Edit Profile</button>
+    <button class='button' onclick="updateProfile()">Edit Profile</button>
 </div>
-<div class='container—edit' id='container—edit'>
+
+<div class='container' id='container—edit'>
     <h1>User profile</h1>
     <img src='profile-picture' alt="user-profile">
-    <span>Name: </span><label for='input-name'></label><input type="text" id='input-name' />
+    <span>Name: </span><label for='input-name'></label><input type="text" id='input-name' value='sami soliman' />
     <hr />
-    <span>Email: </span><label for='input-email'></label><input type="email" id='input-email' />
+    <span>Email: </span><label for='input-email'></label><input type="email" id='input-email' value='sami@example.com' />
     <hr />
-    <span>Interests: </span><label for='input-interests'></label><input type="text" id='input-interests'/>
+    <span>Interests: </span><label for='input-interests'></label><input type="text" id='input-interests' value='sleeping' />
     <hr />
-    <button class='button' onclick="saveProfile()">Update Profile</button>
+    <button class='button' onclick="handleUpdateProfileRequest()">Update Profile</button>
+</div>
+
 </div>
 </body>
 </html>
